@@ -1,54 +1,39 @@
-# Smart Task Manager
+# Todo App
 
-An AI-powered to-do application that helps you manage tasks more efficiently with OpenAI-generated guidance and feedback.
+An AI-powered todo application built with Flask and modern web technologies.
 
 ## Features
 
-- **Calendar-based Task Management**: Add and manage tasks with an intuitive calendar interface
-- **AI-powered Task Guidance**: Get step-by-step instructions on how to complete your tasks efficiently
-- **Task History Tracking**: Maintain a history of tasks, categorized by date and completion status
-- **Automatic Task Rollover**: Incomplete tasks automatically transfer to the next day
-- **AI Feedback on Incomplete Tasks**: Get personalized feedback on why tasks weren't completed
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Firebase Authentication**: Secure user accounts and data
+- Create, read, update, and delete tasks
+- AI-generated guidance for completing tasks
+- Task history tracking
+- Roll over incomplete tasks
+- AI feedback on incomplete tasks
+- Mobile-friendly interface
 
-## Tech Stack
+## Technologies Used
 
-- **Frontend**: HTML, CSS, JavaScript with a responsive design
-- **Backend**: Flask with SQLAlchemy
-- **Database**: SQLite (development) / PostgreSQL (production)
-- **AI Integration**: OpenAI API
-- **Authentication**: Firebase Authentication
+- Backend: Flask, SQLAlchemy, SQLite
+- Frontend: HTML, CSS, JavaScript, Tailwind CSS
+- AI Integration: OpenAI API
 
-## Setup Instructions
+## Setup and Installation
 
-### Prerequisites
-
-- Python 3.8+
-- Node.js and npm (for Firebase CLI if needed)
-- Firebase account
-- OpenAI API key
-
-### Environment Setup
-
-1. Clone this repository:
+1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/smart-task-manager.git
-   cd smart-task-manager
+   git clone https://github.com/statgod6/todoapp.git
+   cd todoapp
    ```
 
-2. Create and activate a virtual environment:
+2. Create a virtual environment and install dependencies:
    ```
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```
    pip install -r requirements.txt
    ```
 
-4. Create a `.env` file in the root directory with the following variables:
+3. Set up environment variables:
+   Create a `.env` file in the root directory with the following:
    ```
    FLASK_APP=app.py
    FLASK_ENV=development
@@ -56,76 +41,28 @@ An AI-powered to-do application that helps you manage tasks more efficiently wit
    OPENAI_API_KEY=your_openai_api_key
    ```
 
-5. Configure Firebase:
-   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-   - Enable Authentication with Email/Password
-   - Download the Firebase Service Account key JSON file
-   - Save it as `firebase-service-account.json` in the root directory or set the content as environment variable
-
-6. Update Firebase configuration:
-   - Edit `app/static/js/firebase-config.js` with your Firebase project settings
-
-### Database Setup
-
-1. Initialize the database:
+4. Initialize the database:
    ```
-   flask db init
-   flask db migrate -m "Initial migration"
-   flask db upgrade
+   python create_db.py
    ```
 
-### Running the Application
-
-1. Start the Flask development server:
+5. Run the application:
    ```
-   flask run
+   python app.py
    ```
 
-2. Access the application in your browser at:
-   ```
-   http://localhost:5000
-   ```
+6. Access the application at `http://localhost:5000`
 
-## Using the Application
+## Project Structure
 
-1. **Sign Up / Login**: Create an account or login with your credentials
-2. **Add Tasks**: Click the "Add Task" button to create a new task
-3. **Set Task Details**: Enter a title, description, and select a due date
-4. **View AI Guidance**: Each task includes AI-generated guidance on how to complete it efficiently
-5. **Mark as Complete**: Click on a task and mark it as complete when finished
-6. **Review History**: See your task history and track your productivity over time
-
-## Deployment
-
-### Heroku Deployment
-
-1. Create a Heroku account and install the Heroku CLI
-2. Login to Heroku:
-   ```
-   heroku login
-   ```
-3. Create a new Heroku app:
-   ```
-   heroku create your-app-name
-   ```
-4. Add PostgreSQL addon:
-   ```
-   heroku addons:create heroku-postgresql:hobby-dev
-   ```
-5. Configure environment variables:
-   ```
-   heroku config:set SECRET_KEY=your_secret_key
-   heroku config:set OPENAI_API_KEY=your_openai_api_key
-   heroku config:set FIREBASE_CONFIG='{"type": "service_account", ...}'
-   ```
-6. Deploy to Heroku:
-   ```
-   git push heroku main
-   ```
-7. Run migrations:
-   ```
-   heroku run flask db upgrade
-   ```
+- `app.py`: Main application entry point
+- `app/`: Application package
+  - `__init__.py`: Application initialization
+  - `models/`: Database models
+  - `routes/`: API routes
+  - `static/`: Static files (CSS, JS)
+  - `templates/`: HTML templates
+- `migrations/`: Database migration files
 
 ## License
 
