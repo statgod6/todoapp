@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Task Manager</title>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    
+    <!-- Flatpickr for date picking -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Application UI -->
+        <div id="app-ui" class="app-ui">
+            <header class="app-header">
+                <div class="header-content">
+                    <h1>Smart Task Manager</h1>
+                    <div class="user-menu">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="user-name">Local User</span>
+                    </div>
+                </div>
+            </header>
+            
+            <main class="app-main">
+                <div class="sidebar">
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <button id="prev-month" class="calendar-nav-btn"><i class="fas fa-chevron-left"></i></button>
+                            <h3 id="current-month">Month Year</h3>
+                            <button id="next-month" class="calendar-nav-btn"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div id="calendar" class="calendar"></div>
+                    </div>
+                    
+                    <!-- Upcoming Tasks Section -->
+                    <div class="upcoming-tasks-container">
+                        <div class="upcoming-tasks-header">
+                            <h3>Upcoming Tasks</h3>
+                        </div>
+                        <div id="upcoming-tasks-list" class="upcoming-tasks-list">
+                            <!-- Upcoming tasks will be loaded here -->
+                            <div class="loading-indicator">Loading upcoming tasks...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content">
+                    <div class="content-header">
+                        <h2 id="selected-date">Today's Tasks</h2>
+                        <button id="add-task-btn" class="primary-button add-button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="tasks-container" class="tasks-container">
+                        <!-- Tasks will be loaded here -->
+                        <div class="loading-indicator">Loading tasks...</div>
+                    </div>
+                </div>
+            </main>
+            
+            <!-- Task Modal -->
+            <div id="task-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="task-modal-title">Add New Task</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    
+                    <form id="task-form">
+                        <input type="hidden" id="task-id">
+                        
+                        <div class="form-group">
+                            <label for="task-title">Title</label>
+                            <input type="text" id="task-title" required placeholder="Enter task title">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="task-description">Description</label>
+                            <textarea id="task-description" placeholder="Enter task details, notes, or additional information"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="task-due-date">Due Date</label>
+                            <input type="text" id="task-due-date" required>
+                        </div>
+                        
+                        <div id="ai-suggestions-container" class="ai-guidance-container" style="display: none;">
+                            <h4>AI Suggestions</h4>
+                            <div id="ai-suggestions" class="ai-guidance-content">
+                                Based on your task description, here are some suggestions to help you complete this task efficiently.
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="secondary-button close-modal">Cancel</button>
+                            <button type="submit" class="primary-button">Save Task</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Task Details Modal -->
+            <div id="task-details-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="task-details-title">Task Details</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    
+                    <div class="task-details-content">
+                        <p id="task-details-description" class="task-description"></p>
+                        
+                        <div class="task-metadata">
+                            <div class="metadata-item">
+                                <span class="metadata-label">Due Date:</span>
+                                <span id="task-details-due-date"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label">Created:</span>
+                                <span id="task-details-status"></span>
+                            </div>
+                        </div>
+                        
+                        <div id="ai-guidance-container" class="ai-guidance-container">
+                            <h4>AI Guidance</h4>
+                            <div id="ai-guidance" class="ai-guidance-content">
+                                Based on your task patterns and history, here are some suggestions to help you complete this task efficiently.
+                            </div>
+                        </div>
+                        
+                        <div class="task-actions">
+                            <button id="edit-task-btn" class="secondary-button">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button id="delete-task-btn" class="danger-button">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                            <button id="complete-task-btn" class="success-button">
+                                <i class="fas fa-check"></i> <span id="complete-btn-text">Mark Complete</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Incomplete Reason Modal -->
+            <div id="incomplete-reason-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Why wasn't this task completed?</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <form id="incomplete-reason-form">
+                            <div class="form-group">
+                                <label for="incomplete-reason">Reason</label>
+                                <textarea id="incomplete-reason" required placeholder="What prevented you from completing this task?"></textarea>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" class="secondary-button close-form-modal">Skip</button>
+                                <button type="submit" class="primary-button">Submit</button>
+                            </div>
+                        </form>
+                        
+                        <div id="ai-feedback-container" class="ai-feedback-container" style="display: none;">
+                            <h4>AI Feedback</h4>
+                            <div id="ai-feedback" class="ai-feedback-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- End of Day Review Modal -->
+            <div id="eod-review-modal" class="modal">
+                <div class="modal-content eod-modal-content">
+                    <div class="modal-header">
+                        <h3>End of Day Review</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <div class="eod-intro">
+                            <p>You have incomplete tasks for today. Let's review them before deciding what to do next.</p>
+                        </div>
+                        
+                        <div id="eod-tasks-container">
+                            <div id="eod-tasks-list" class="eod-tasks-list">
+                                <!-- Tasks will be populated here -->
+                            </div>
+                            
+                            <div class="eod-loading" id="eod-loading">
+                                <div class="spinner"></div>
+                                <p>Loading tasks...</p>
+                            </div>
+                            
+                            <div class="eod-empty" id="eod-empty" style="display: none;">
+                                <p>No incomplete tasks found for today.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="eod-actions">
+                            <button id="eod-rollover-all-btn" class="primary-button">
+                                <i class="fas fa-calendar-plus"></i> Roll Over All to Tomorrow
+                            </button>
+                            <button id="eod-complete-review-btn" class="success-button">
+                                <i class="fas fa-check-circle"></i> Complete Review
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Task Reflection Modal -->
+            <div id="task-reflection-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Task Reflection</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <div id="reflection-task-details" class="reflection-task-details">
+                            <h4 id="reflection-task-title">Task Title</h4>
+                            <p id="reflection-task-description" class="reflection-task-description">Task description will appear here.</p>
+                        </div>
+                        
+                        <form id="task-reflection-form">
+                            <input type="hidden" id="reflection-task-id">
+                            
+                            <div class="form-group">
+                                <label for="reflection-reason">Why wasn't this task completed?</label>
+                                <textarea id="reflection-reason" required placeholder="What prevented you from completing this task?"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>What would you like to do with this task?</label>
+                                <div class="reflection-options">
+                                    <label class="radio-option">
+                                        <input type="radio" name="reflection-action" value="rollover" checked>
+                                        <span>Roll over to tomorrow</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="reflection-action" value="complete">
+                                        <span>Mark as completed anyway</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="reflection-action" value="delete">
+                                        <span>Delete this task</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="primary-button">Submit & Continue</button>
+                            </div>
+                        </form>
+                        
+                        <div id="reflection-feedback-container" class="ai-feedback-container" style="display: none;">
+                            <h4>AI Feedback</h4>
+                            <div id="reflection-feedback" class="ai-feedback-content"></div>
+                            <div class="feedback-actions">
+                                <button id="reflection-continue-btn" class="primary-button">Continue to Next Task</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- App JS -->
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html> 
