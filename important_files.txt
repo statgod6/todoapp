@@ -1,0 +1,8 @@
+Important Python files in this project:
+
+1. app.py - Main application entry point
+2. app/__init__.py - Application initialization
+3. app/routes/task_routes.py - API routes for tasks
+4. app/models/task.py - Task model
+5. app/models/user.py - User model
+6. requirements.txt - Project dependencies 
